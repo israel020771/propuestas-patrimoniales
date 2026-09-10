@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Propuestas Patrimoniales</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            height: 100%;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        /* Login Screen */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .login-box h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .login-box .subtitle {
+            color: #666;
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.2);
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .login-btn:hover {
+            background: #5568d3;
+        }
+        
+        .login-error {
+            color: #c41e3a;
+            font-size: 13px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .test-creds {
+            background: #e3f2fd;
+            padding: 12px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #1976d2;
+            line-height: 1.6;
+        }
+        
+        /* App Container */
+        .app-container {
+            display: none;
+        }
+        
+        .app-header {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .app-header h1 {
+            color: #333;
+            font-size: 20px;
+            margin: 0;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-name {
+            color: #666;
+            font-size: 14px;
+            text-align: right;
+        }
+        
+        .logout-btn {
+            background: #c41e3a;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #a01930;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .panel {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .panel h2 {
+            color: #333;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #c41e3a;
+            padding-bottom: 10px;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+        }
+        
+        .form-section h3 {
+            font-size: 14px;
+            color: #c41e3a;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 13px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #c41e3a;
+            box-shadow: 0 0 5px rgba(196, 30, 58, 0.2);
+        }
+        
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .alternative-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #c41e3a;
+            margin-bottom: 20px;
+        }
+        
+        .alt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .alt-header h4 {
+            font-size: 14px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .btn-remove {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+        
+        .btn-remove:hover {
+            background: #ff5252;
+        }
+        
+        .btn-add-alt {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            width: 100%;
+            margin-bottom: 20px;
+            transition: background 0.3s;
+        }
+        
+        .btn-add-alt:hover {
+            background: #5568d3;
+        }
+        
+        .btn-generate {
+            background: #c41e3a;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: background 0.3s;
+            margin-top: 20px;
+        }
+        
+        .btn-generate:hover {
+            background: #a01930;
+        }
+        
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn-save {
+            background: #51cf66;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        .btn-save:hover {
+            background: #40c057;
+        }
+        
+        .history-panel {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .history-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .history-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .history-item.active {
+            background: #e8f5e9;
+            border-left: 4px solid #51cf66;
+        }
+        
+        .history-date {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .history-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .alert {
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            display: none;
+        }
+        
+        .alert.show {
+            display: block;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <h1>🔐 Acceso Seguro</h1>
+            <div class="subtitle">Generador de Propuestas Patrimoniales</div>
+            
+            <div id="loginError" class="login-error"></div>
+            
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Usuario</label>
+                    <input type="text" id="loginUsername" placeholder="tu_usuario" required>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="loginPassword" placeholder="tu_contraseña" required>
+                </div>
+                <button type="submit" class="login-btn">Ingresar</button>
+            </form>
+            
+            <div class="test-creds">
+                <strong>Credenciales de prueba:</strong><br>
+                Usuario: <code>admin</code><br>
+                Contraseña: <code>Admin123!</code>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Screen -->
+    <div id="appScreen" class="app-container">
+        <div class="app-header">
+            <h1>📋 Generador de Propuestas Patrimoniales</h1>
+            <div class="user-info">
+                <div class="user-name">
+                    <div id="userFullName">Usuario</div>
+                    <small id="userRole">Agente</small>
+                </div>
+                <button class="logout-btn" onclick="handleLogout()">Salir</button>
+            </div>
+        </div>
+        
+        <div class="container">
+            <!-- Panel Izquierdo: Formulario -->
+            <div class="panel">
+                <h2>📋 Nueva Propuesta</h2>
+                
+                <div id="alert" class="alert"></div>
+                
+                <!-- Datos Familia -->
+                <div class="form-section">
+                    <h3>Datos de la Familia</h3>
+                    <div class="form-group">
+                        <label>Nombre de la Familia</label>
+                        <input type="text" id="familyName" placeholder="ej: MÁRQUEZ CANDELA" value="MÁRQUEZ CANDELA">
+                    </div>
+                    <div class="form-group">
+                        <label>Objetivo/Descripción</label>
+                        <input type="text" id="objective" placeholder="ej: Protección familiar y planificación a largo plazo en USD" value="Protección familiar y planificación a largo plazo en USD">
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre del Consultor</label>
+                        <input type="text" id="consultant" placeholder="ej: MARCIA HIDALGO">
+                    </div>
+                </div>
+                
+                <!-- Personas -->
+                <div class="form-section" id="peopleSection">
+                    <h3>Personas Aseguradas</h3>
+                    <div id="peopleList"></div>
+                    <button type="button" class="btn-add-alt" onclick="addPerson()">+ Agregar Persona</button>
+                </div>
+                
+                <!-- Botones -->
+                <div class="btn-group">
+                    <button type="button" class="btn-save" onclick="saveProposal()">💾 Guardar</button>
+                    <button type="button" class="btn-generate" onclick="generatePDF()">📄 Generar PDF</button>
+                </div>
+            </div>
+            
+            <!-- Panel Derecho: Historial -->
+            <div class="panel">
+                <h2>📚 Historial de Propuestas</h2>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalCount">0</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="todayCount">0</div>
+                        <div class="stat-label">Hoy</div>
+                    </div>
+                </div>
+                
+                <div class="history-list" id="historyList"></div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button type="button" class="btn-save" onclick="editSelected()" style="background: #ffa94d;">✏️ Editar</button>
+                    <button type="button" class="btn-remove" onclick="deleteSelected()">🗑️ Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin + '/api';
+        let authToken = localStorage.getItem('authToken');
+        let currentUser = null;
+        let currentProposal = null;
+        let selectedProposalId = null;
+
+        class Proposal {
+            constructor() {
+                this.id = null;
+                this.familyName = 'MÁRQUEZ CANDELA';
+                this.objective = 'Protección familiar y planificación a largo plazo en USD';
+                this.consultant = currentUser?.fullName || '';
+                this.people = [];
+            }
+        }
+
+        class Person {
+            constructor(name = '', age = '') {
+                this.id = Math.random();
+                this.name = name;
+                this.age = age;
+                this.alternatives = [];
+            }
+        }
+
+        class Alternative {
+            constructor() {
+                this.id = Math.random();
+                this.description = '';
+                this.annualPremium = '';
+                this.savings15 = '';
+                this.savings20 = '';
+                this.savings30 = '';
+                this.emissionCost = 125;
+                this.cost15 = '';
+                this.cost20 = '';
+                this.cost30 = '';
+            }
+        }
+
+        // ========== AUTENTICACIÓN ==========
+        async function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showLoginError(data.error || 'Error en la autenticación');
+                    return;
+                }
+
+                authToken = data.token;
+                currentUser = data.user;
+                localStorage.setItem('authToken', authToken);
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                initApp();
+            } catch (error) {
+                showLoginError('Error de conexión: ' + error.message);
+            }
+        }
+
+        function handleLogout() {
+            if (confirm('¿Deseas cerrar sesión?')) {
+                authToken = null;
+                currentUser = null;
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('currentUser');
+                location.reload();
+            }
+        }
+
+        function showLoginError(message) {
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.textContent = '❌ ' + message;
+            errorDiv.style.display = 'block';
+        }
+
+        // ========== INICIALIZACIÓN ==========
+        function initApp() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('appScreen').style.display = 'block';
+            document.getElementById('userFullName').textContent = currentUser.fullName || currentUser.username;
+            document.getElementById('userRole').textContent = currentUser.role === 'admin' ? 'Administrador' : 'Agente';
+
+            currentProposal = new Proposal();
+            currentProposal.consultant = currentUser.fullName || currentUser.username;
+            addPerson();
+            renderForm();
+            loadProposals();
+        }
+
+        function init() {
+            if (authToken) {
+                currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                initApp();
+            }
+        }
+
+        // ========== FORMULARIO ==========
+        function addPerson() {
+            if (!currentProposal) currentProposal = new Proposal();
+            const person = new Person();
+            person.alternatives.push(new Alternative());
+            currentProposal.people.push(person);
+            renderForm();
+        }
+
+        function removePerson(personId) {
+            currentProposal.people = currentProposal.people.filter(p => p.id !== personId);
+            renderForm();
+        }
+
+        function addAlternative(personId) {
+            const person = currentProposal.people.find(p => p.id === personId);
+            if (person) {
+                person.alternatives.push(new Alternative());
+                renderForm();
+            }
+        }
+
+        function removeAlternative(personId, altId) {
+            const person = currentProposal.people.find(p => p.id === personId);
+            if (person && person.alternatives.length > 1) {
+                person.alternatives = person.alternatives.filter(a => a.id !== altId);
+                renderForm();
+            }
+        }
+
+        function renderForm() {
+            const peopleList = document.getElementById('peopleList');
+            peopleList.innerHTML = '';
+
+            currentProposal.people.forEach((person, personIndex) => {
+                const personDiv = document.createElement('div');
+                personDiv.innerHTML = `
+                    <div class="alternative-section" style="border-left: 4px solid #667eea;">
+                        <div class="alt-header">
+                            <h4>Persona ${personIndex + 1}</h4>
+                            <button type="button" class="btn-remove" onclick="removePerson(${person.id})">Eliminar</button>
+                        </div>
+                        <div class="two-col">
+                            <div class="form-group">
+                                <label>Nombre</label>
+                                <input type="text" value="${person.name}" onchange="updatePersonField(${person.id}, 'name', this.value)" placeholder="ej: ROUSSE CANDELA">
+                            </div>
+                            <div class="form-group">
+                                <label>Edad</label>
+                                <input type="number" value="${person.age}" onchange="updatePersonField(${person.id}, 'age', this.value)" placeholder="ej: 41">
+                            </div>
+                        </div>
+                        
+                        <h3 style="margin-top: 20px; margin-bottom: 15px;">Alternativas</h3>
+                        <div id="alternatives-${person.id}"></div>
+                        
+                        <button type="button" class="btn-add-alt" onclick="addAlternative(${person.id})">+ Agregar Alternativa</button>
+                    </div>
+                `;
+                peopleList.appendChild(personDiv);
+
+                const altContainer = document.getElementById(`alternatives-${person.id}`);
+                person.alternatives.forEach((alt, altIndex) => {
+                    const altDiv = document.createElement('div');
+                    altDiv.innerHTML = `
+                        <div class="alternative-section" style="border-left: 4px solid #c41e3a; background: white;">
+                            <div class="alt-header">
+                                <h4>Alternativa ${altIndex + 1}</h4>
+                                ${person.alternatives.length > 1 ? `<button type="button" class="btn-remove" onclick="removeAlternative(${person.id}, ${alt.id})">Eliminar</button>` : ''}
+                            </div>
+                            <div class="form-group">
+                                <label>Descripción del Producto</label>
+                                <input type="text" value="${alt.description}" onchange="updateAltField(${person.id}, ${alt.id}, 'description', this.value)" placeholder="ej: Seguro de vida con ahorro...">
+                            </div>
+                            <div class="two-col">
+                                <div class="form-group">
+                                    <label>Prima Anual</label>
+                                    <input type="number" step="0.01" value="${alt.annualPremium}" onchange="updateAltField(${person.id}, ${alt.id}, 'annualPremium', this.value)">
+                                </div>
+                                <div class="form-group">
+                                    <label>Ahorro 15 años</label>
+                                    <input type="number" step="0.01" value="${alt.savings15}" onchange="updateAltField(${person.id}, ${alt.id}, 'savings15', this.value)">
+                                </div>
+                                <div class="form-group">
+                                    <label>Ahorro 20 años</label>
+                                    <input type="number" step="0.01" value="${alt.savings20}" onchange="updateAltField(${person.id}, ${alt.id}, 'savings20', this.value)">
+                                </div>
+                                <div class="form-group">
+                                    <label>Ahorro 30 años</label>
+                                    <input type="number" step="0.01" value="${alt.savings30}" onchange="updateAltField(${person.id}, ${alt.id}, 'savings30', this.value)">
+                                </div>
+                                <div class="form-group">
+                                    <label>Costo 15 años</label>
+                                    <input type="number" step="0.01" value="${alt.cost15}" onchange="updateAltField(${person.id}, ${alt.id}, 'cost15', this.value)">
+                                </div>
+                                <div class="form-group">
+                                    <label>Costo 20 años</label>
+                                    <input type="number" step="0.01" value="${alt.cost20}" onchange="updateAltField(${person.id}, ${alt.id}, 'cost20', this.value)">
+                                </div>
+                                <div class="form-group">
+                                    <label>Costo 30 años</label>
+                                    <input type="number" step="0.01" value="${alt.cost30}" onchange="updateAltField(${person.id}, ${alt.id}, 'cost30', this.value)">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    altContainer.appendChild(altDiv);
+                });
+            });
+        }
+
+        function updatePersonField(personId, field, value) {
+            const person = currentProposal.people.find(p => p.id === personId);
+            if (person) person[field] = value;
+        }
+
+        function updateAltField(personId, altId, field, value) {
+            const person = currentProposal.people.find(p => p.id === personId);
+            if (person) {
+                const alt = person.alternatives.find(a => a.id === altId);
+                if (alt) alt[field] = value;
+            }
+        }
+
+        // ========== PROPUESTAS ==========
+        async function saveProposal() {
+            currentProposal.familyName = document.getElementById('familyName').value;
+            currentProposal.objective = document.getElementById('objective').value;
+            currentProposal.consultant = document.getElementById('consultant').value;
+
+            if (!currentProposal.familyName || currentProposal.people.length === 0) {
+                showAlert('Completa los datos de la familia y agrega al menos una persona', 'error');
+                return;
+            }
+
+            const panel = document.querySelector('.panel:first-child');
+            panel.classList.add('loading');
+
+            try {
+                const proposalData = JSON.parse(JSON.stringify(currentProposal));
+                
+                if (currentProposal.id) {
+                    // Actualizar
+                    const response = await fetch(`${API_URL}/proposals/${currentProposal.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify(proposalData)
+                    });
+
+                    if (!response.ok) throw new Error('Error al actualizar');
+                    showAlert('Propuesta actualizada correctamente', 'success');
+                } else {
+                    // Crear nueva
+                    const response = await fetch(`${API_URL}/proposals`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify(proposalData)
+                    });
+
+                    const data = await response.json();
+                    if (!response.ok) throw new Error('Error al guardar');
+
+                    currentProposal.id = data.id;
+                    showAlert('Propuesta guardada correctamente', 'success');
+                }
+
+                loadProposals();
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'error');
+            } finally {
+                panel.classList.remove('loading');
+            }
+        }
+
+        async function loadProposals() {
+            try {
+                const response = await fetch(`${API_URL}/proposals`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const proposals = await response.json();
+                updateHistory(proposals);
+            } catch (error) {
+                console.error('Error cargando propuestas:', error);
+            }
+        }
+
+        function updateHistory(proposals) {
+            document.getElementById('totalCount').textContent = proposals.length;
+            const today = proposals.filter(p => {
+                const pDate = new Date(p.createdAt);
+                const now = new Date();
+                return pDate.toDateString() === now.toDateString();
+            }).length;
+            document.getElementById('todayCount').textContent = today;
+
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+
+            [...proposals].reverse().forEach(proposal => {
+                const item = document.createElement('div');
+                item.className = `history-item ${selectedProposalId === proposal.id ? 'active' : ''}`;
+                const date = new Date(proposal.createdAt);
+                item.innerHTML = `
+                    <div class="history-name">${proposal.familyName}</div>
+                    <div style="font-size: 12px; color: #999; margin-top: 3px;">${proposal.consultant || 'Sin asignar'}</div>
+                    <div class="history-date">${date.toLocaleDateString('es-MX')} ${date.toLocaleTimeString('es-MX').substring(0, 5)}</div>
+                `;
+                item.onclick = () => selectProposal(proposal.id);
+                historyList.appendChild(item);
+            });
+        }
+
+        function selectProposal(id) {
+            selectedProposalId = id;
+            loadProposals();
+        }
+
+        async function editSelected() {
+            if (!selectedProposalId) {
+                showAlert('Selecciona una propuesta primero', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/proposals/${selectedProposalId}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const data = await response.json();
+                currentProposal = data.proposalData;
+                currentProposal.id = data.id;
+
+                document.getElementById('familyName').value = currentProposal.familyName;
+                document.getElementById('objective').value = currentProposal.objective;
+                document.getElementById('consultant').value = currentProposal.consultant;
+
+                renderForm();
+                document.querySelector('.panel:first-child').scrollIntoView({ behavior: 'smooth' });
+                showAlert('Propuesta cargada para editar', 'success');
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteSelected() {
+            if (!selectedProposalId) {
+                showAlert('Selecciona una propuesta primero', 'error');
+                return;
+            }
+
+            if (!confirm('¿Estás seguro de que deseas eliminar esta propuesta?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/proposals/${selectedProposalId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (!response.ok) throw new Error('Error al eliminar');
+
+                selectedProposalId = null;
+                currentProposal = new Proposal();
+                currentProposal.consultant = currentUser.fullName || currentUser.username;
+                renderForm();
+                loadProposals();
+                showAlert('Propuesta eliminada correctamente', 'success');
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'error');
+            }
+        }
+
+        function generatePDF() {
+            currentProposal.familyName = document.getElementById('familyName').value;
+            currentProposal.objective = document.getElementById('objective').value;
+            currentProposal.consultant = document.getElementById('consultant').value;
+
+            const htmlContent = generateHTMLForPDF();
+            
+            const opt = {
+                margin: 0,
+                filename: `Propuesta_${currentProposal.familyName.replace(/\s+/g, '_')}_${new Date().getTime()}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { format: 'letter', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(htmlContent).save();
+            showAlert('PDF generado correctamente', 'success');
+        }
+
+        function generateHTMLForPDF() {
+            let html = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <style>
+                        * { margin: 0; padding: 0; box-sizing: border-box; }
+                        body { font-family: Arial, sans-serif; background: white; }
+                        .header { background: #1a1a1a; color: #d4a574; padding: 20px; text-align: center; }
+                        .header h1 { font-size: 28px; margin-bottom: 5px; letter-spacing: 2px; }
+                        .header .subtitle { color: #d4a574; font-size: 14px; margin-bottom: 5px; }
+                        .header .desc { color: #fff; font-size: 12px; }
+                        .content { padding: 30px; }
+                        .info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+                        .info-block { }
+                        .info-label { color: #c41e3a; font-weight: bold; font-size: 12px; margin-bottom: 5px; }
+                        .info-value { font-size: 14px; font-weight: 600; }
+                        .person-section { page-break-inside: avoid; margin-bottom: 40px; }
+                        .person-title { background: #c41e3a; color: white; padding: 10px 15px; font-size: 14px; font-weight: bold; margin-bottom: 20px; }
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+                        th { background: #e8e8e8; padding: 12px; text-align: left; font-size: 11px; font-weight: bold; border: 1px solid #ddd; }
+                        td { padding: 12px; border: 1px solid #ddd; font-size: 11px; }
+                        tr:nth-child(even) { background: #f9f9f9; }
+                        .number { text-align: right; font-weight: 600; }
+                        .footer { border-top: 1px solid #ddd; padding-top: 30px; text-align: center; font-size: 12px; color: #666; margin-top: 50px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>PROPUESTA PATRIMONIAL</h1>
+                        <div class="subtitle">Protección hoy. Patrimonio para mañana.</div>
+                        <div class="desc">Alternativas de Protección familiar y ahorro en USD</div>
+                    </div>
+                    
+                    <div class="content">
+                        <div class="info-row">
+                            <div class="info-block">
+                                <div class="info-label">FAMILIA</div>
+                                <div class="info-value">${currentProposal.familyName}</div>
+                            </div>
+                            <div class="info-block">
+                                <div class="info-label">OBJETIVO</div>
+                                <div class="info-value">${currentProposal.objective}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: center; margin-bottom: 30px; font-size: 12px; color: #666;">
+                            Con el respaldo de BMI - JISHKA Internacional
+                        </div>
+            `;
+
+            currentProposal.people.forEach(person => {
+                html += `
+                    <div class="person-section">
+                        <div class="person-title">${person.name.toUpperCase()} | ${person.age} años — Valores Proyectados</div>
+                        
+                        <table>
+                            <tr>
+                                <th>ALT.</th>
+                                <th>PRODUCTO</th>
+                                <th class="number">PRIMA ANUAL</th>
+                                <th class="number">AHORRO 15 AÑOS</th>
+                                <th class="number">AHORRO 20 AÑOS</th>
+                                <th class="number">AHORRO 30 AÑOS</th>
+                            </tr>
+                `;
+
+                person.alternatives.forEach((alt, idx) => {
+                    html += `
+                        <tr>
+                            <td style="font-weight: bold; color: #c41e3a; text-align: center;">${idx + 1}</td>
+                            <td>${alt.description}</td>
+                            <td class="number">$${parseFloat(alt.annualPremium || 0).toLocaleString('es-MX', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</td>
+                            <td class="number">$${parseFloat(alt.savings15 || 0).toLocaleString('es-MX', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</td>
+                            <td class="number">$${parseFloat(alt.savings20 || 0).toLocaleString('es-MX', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</td>
+                            <td class="number">$${parseFloat(alt.savings30 || 0).toLocaleString('es-MX', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</td>
+                        </tr>
+                    `;
+                });
+
+                html += `</table>`;
+
+                html += `
+                    <div class="person-title">${person.name.toUpperCase()} | Costos acumulados informados</div>
+                    
+                    <table>
+                        <tr>
+                            <th>ALT.</th>
+                            <th>PRIMA ANUAL</th>
+                            <th class="number">EMISIÓN</th>
+                            <th class="number">COSTO 15 AÑOS</th>
+                            <th class="number">COSTO 20 AÑOS</th>
+                            <th class="number">COSTO 30 AÑOS</th>
+                        </tr>
+                `;
+
+                person.alternatives.forEach((alt, idx) => {
+                    html += `
+                        <tr>
+                            <td style="font-weight: bold; color: #c41e3a; text-align: center;">${idx + 1}</td>
+                            <td>$${parseFloat(alt.annualPremium || 0).toLocaleString('es-MX', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</td>
+                            <td class="number">$${alt.emissionCost}</td>
+                            <td class="number">$${parseFloat(alt.cost15 || 0).toLocaleString('es-MX', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</td>
+                            <td class="number">$${parseFloat(alt.cost20 || 0).toLocaleString('es-MX', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</td>
+                            <td class="number">$${parseFloat(alt.cost30 || 0).toLocaleString('es-MX', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</td>
+                        </tr>
+                    `;
+                });
+
+                html += `</table></div>`;
+            });
+
+            html += `
+                        <div class="footer" style="background: #1a1a1a; color: white; padding: 20px; margin-left: -30px; margin-right: -30px; margin-bottom: -30px;">
+                            <strong style="font-size: 13px;">PROTECCIÓN Y PLANIFICACIÓN PARA SU FAMILIA</strong>
+                            <p style="margin-top: 10px; font-size: 11px;">Tres alternativas por persona, según sus prioridades y horizonte de pago.</p>
+                            <p style="margin-top: 15px; border-top: 1px solid #666; padding-top: 15px; font-size: 12px;">
+                                <strong>Consultor:</strong> ${currentProposal.consultant}
+                            </p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+
+            return html;
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.getElementById('alert');
+            alertDiv.textContent = message;
+            alertDiv.className = `alert alert-${type} show`;
+            setTimeout(() => {
+                alertDiv.classList.remove('show');
+            }, 4000);
+        }
+
+        // Inicializar
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
