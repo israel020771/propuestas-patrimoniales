@@ -1,0 +1,15 @@
+# Configuración del Servidor
+PORT=3000
+NODE_ENV=development
+
+# Base de datos
+DB_PATH=./propuestas.db
+
+# JWT (CAMBIAR EN PRODUCCIÓN)
+SECRET_KEY=tu_clave_secreta_muy_segura_cambiar_en_produccion_2024
+
+# CORS
+CORS_ORIGIN=*
+
+# API URLs (cambiar según donde lo depliegues)
+API_URL=http://localhost:3000
